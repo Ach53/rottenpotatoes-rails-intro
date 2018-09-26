@@ -11,8 +11,32 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.order(params[:sort])
-    @order = params[:sort]
+    sort = params[:sort] || session[:sort]
+    if sort == "title"
+      @title_header = "hilite"
+    elsif sort == "release_date"
+      @release_header = "hilite"
+    end
+    
+    @all_ratings = Movie.uniq.pluck(:rating)
+    @sel_ratings = params[:ratings] || session[:ratings] || {}
+    
+# If no sel_ratings, check all the ratings. (Done using hashmap)
+    if @sel_ratings == {}
+      @all_ratings.each do |rating|
+        @sel_ratings[rating] = 1
+      end
+    end
+
+# For storing the previous sort/sel, when changing other activities    
+    if params[:ratings] != session[:ratings] or params[:sort] != session[:sort]
+      session[:sort] = sort
+      session[:ratings] = @sel_ratings
+      redirect_to :sort => sort, :ratings => @sel_ratings and return
+    end
+    
+    #@movies = Movie.order(params[:sort])
+    @movies = Movie.where(rating: @sel_ratings.keys).order(params[:sort])
   end
 
   def new
