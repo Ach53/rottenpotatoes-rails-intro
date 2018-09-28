@@ -18,7 +18,7 @@ class MoviesController < ApplicationController
       @release_header = "hilite"
     end
     
-    @all_ratings = Movie.uniq.pluck(:rating)
+    @all_ratings = Movie.all_ratings #Movie.uniq.pluck(:rating)
     @sel_ratings = params[:ratings] || session[:ratings] || {}
     
 # If no sel_ratings, check all the ratings. (Done using hashmap)
